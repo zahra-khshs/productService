@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: product_service_app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    networks:
+      - product_network
+
+  mysql:
+    image: mysql:8.0.35
+    container_name: product_service_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_USER: laravel
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - product_network
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: product_service_redis
+    restart: unless-stopped
+    networks:
+      - product_network
+
+networks:
+  product_network:
+    driver: bridge
+
+volumes:
+  dbdata:
